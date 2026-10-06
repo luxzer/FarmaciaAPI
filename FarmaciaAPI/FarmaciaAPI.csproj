@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+
+    <!-- Genera el archivo XML con los comentarios /// del codigo.
+         Swagger lo lee para mostrar la descripcion de cada endpoint. -->
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+
+    <!-- 1591 = "falta comentario XML en un miembro publico".
+         1573 = "falta documentar un parametro". Son avisos cosmeticos. -->
+    <NoWarn>$(NoWarn);1591;1573</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Driver ADO.NET de MySQL. Es el que da MySqlConnection,
+         MySqlCommand y MySqlDataReader. No es un ORM. -->
+
+    <!-- Genera el documento OpenAPI y sirve la interfaz grafica de Swagger. -->
+    <PackageReference Include="MySqlConnector" Version="2.6.2" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="10.2.3" />
+  </ItemGroup>
+
+</Project>

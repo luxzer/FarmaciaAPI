@@ -1,0 +1,13 @@
+# Compilados de .NET
+bin/
+obj/
+*.user
+*.suo
+
+# Visual Studio / VS Code
+.vs/
+.vscode/
+
+# Secretos locales: NO subir contrasenas al repositorio
+appsettings.Local.json
+*.env
