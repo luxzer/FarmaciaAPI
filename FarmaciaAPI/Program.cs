@@ -163,7 +163,13 @@ app.UseSwaggerUI(opciones =>
 });
 
 // --- 2.3 Middlewares restantes ----------------------------------------------
-app.UseHttpsRedirection();      // redirige http -> https
+// Solo forzamos https fuera de desarrollo. Si lo activamos siempre y la app
+// se arranca unicamente en http (como hace EJECUTAR-API.bat), el middleware
+// no encuentra un puerto https al que redirigir y escribe una advertencia
+// confusa en la consola en cada peticion.
+if (!app.Environment.IsDevelopment())
+    app.UseHttpsRedirection();  // redirige http -> https
+
 app.UseCors("PermitirTodo");    // aplica la politica de CORS declarada arriba
 app.MapControllers();           // conecta las rutas de los controladores
 
