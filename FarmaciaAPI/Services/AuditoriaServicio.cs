@@ -34,7 +34,12 @@ public class AuditoriaServicio : IAuditoriaServicio
         _nombreFarmacia  = configuracion.GetValue<string>("Farmacia:Nombre") ?? "Farmacia";
         _usuarioSistema  = configuracion.GetValue<string>("Farmacia:UsuarioSistema") ?? "sistema";
 
-        _logger.LogInformation(
+        // Usamos LogDebug y no LogInformation a proposito: este servicio esta
+        // registrado como Scoped, asi que el contenedor lo construye de nuevo
+        // en CADA peticion HTTP. Si el mensaje fuera Information, se repetiria
+        // una vez por peticion y ensuciaria la consola. Con Debug solo aparece
+        // si se baja el nivel minimo de log en appsettings.json.
+        _logger.LogDebug(
             "Servicio de auditoria inicializado para {Farmacia}. Habilitada={Habilitada}",
             _nombreFarmacia, _habilitada);
     }
