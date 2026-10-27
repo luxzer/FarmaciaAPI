@@ -1,0 +1,59 @@
+@* Buscador y filtros del catalogo.
+   COMUNICACION HIJO -> PADRE: no guarda ni filtra nada por su cuenta; avisa a
+   la pagina con EventCallback y es la pagina quien decide que hacer. *@
+
+<div class="buscador">
+    <div class="buscador-fila">
+        <input type="search"
+               placeholder="Buscar por nombre, por ejemplo: mol"
+               value="@Texto"
+               @oninput="EscribioTexto"
+               aria-label="Buscar medicamentos" />
+        <button class="boton boton-secundario" type="button" @onclick="Limpiar">Limpiar</button>
+    </div>
+
+    <div class="filtros" role="group" aria-label="Filtros del catalogo">
+        @foreach (var f in Enum.GetValues<FiltroCatalogo>())
+        {
+            <button type="button"
+                    class="filtro @(Filtro == f ? "activo" : "")"
+                    @onclick="() => CambioFiltro(f)">
+                @Rotulo(f)
+            </button>
+        }
+    </div>
+</div>
+
+@code {
+    /// <summary>Opciones de filtrado que ofrece el catalogo.</summary>
+    public enum FiltroCatalogo { Todos, StockBajo, ConReceta, PorVencer }
+
+    // Parametros de entrada: la pagina manda el estado actual (padre -> hijo).
+    [Parameter] public string? Texto { get; set; }
+    [Parameter] public FiltroCatalogo Filtro { get; set; } = FiltroCatalogo.Todos;
+
+    // Eventos de salida: avisamos a la pagina (hijo -> padre).
+    [Parameter] public EventCallback<string?> TextoCambio { get; set; }
+    [Parameter] public EventCallback<FiltroCatalogo> FiltroCambio { get; set; }
+
+    private async Task EscribioTexto(ChangeEventArgs e)
+        => await TextoCambio.InvokeAsync(e.Value?.ToString());
+
+    private async Task CambioFiltro(FiltroCatalogo f)
+        => await FiltroCambio.InvokeAsync(f);
+
+    private async Task Limpiar()
+    {
+        await TextoCambio.InvokeAsync(null);
+        await FiltroCambio.InvokeAsync(FiltroCatalogo.Todos);
+    }
+
+    private static string Rotulo(FiltroCatalogo f) => f switch
+    {
+        FiltroCatalogo.Todos     => "Todos",
+        FiltroCatalogo.StockBajo => "Stock bajo",
+        FiltroCatalogo.ConReceta => "Con receta",
+        FiltroCatalogo.PorVencer => "Proximos a vencer",
+        _ => f.ToString()
+    };
+}

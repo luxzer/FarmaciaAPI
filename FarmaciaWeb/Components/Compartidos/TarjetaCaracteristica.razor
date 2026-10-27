@@ -1,0 +1,20 @@
+@* Tarjeta informativa del landing. Recibe todo por parametros
+   (comunicacion padre -> hijo). *@
+
+<div class="tarjeta">
+    <span class="etiqueta">@Etiqueta</span>
+    <h3>@Titulo</h3>
+    <p class="descripcion">@Descripcion</p>
+    @if (!string.IsNullOrWhiteSpace(Enlace))
+    {
+        <a class="boton boton-secundario" href="@Enlace">@TextoEnlace</a>
+    }
+</div>
+
+@code {
+    [Parameter, EditorRequired] public string Etiqueta { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string Titulo { get; set; } = string.Empty;
+    [Parameter, EditorRequired] public string Descripcion { get; set; } = string.Empty;
+    [Parameter] public string? Enlace { get; set; }
+    [Parameter] public string TextoEnlace { get; set; } = "Ver mas";
+}

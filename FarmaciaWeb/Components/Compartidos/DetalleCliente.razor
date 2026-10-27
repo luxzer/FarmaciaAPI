@@ -1,0 +1,51 @@
+@* Ficha del cliente seleccionado.
+   Es el otro extremo de la comunicacion: la pagina recibe el evento de
+   TarjetaCliente y pasa el resultado a este componente (padre -> hijo). *@
+
+<div class="tarjeta detalle">
+    @if (Item is null)
+    {
+        <h3>Ficha del cliente</h3>
+        <p class="descripcion">Selecciona un cliente de la lista para ver sus datos.</p>
+    }
+    else
+    {
+        <div style="display:flex; gap:14px; align-items:center; margin-bottom:16px">
+            <span class="avatar" aria-hidden="true">@Item.Iniciales</span>
+            <span>
+                <h3 style="margin:0">@Item.NombreCompleto</h3>
+                <p class="laboratorio" style="margin:0">Documento @Item.Documento</p>
+            </span>
+        </div>
+
+        <dl>
+            <dt>Telefono</dt>
+            <dd>@(string.IsNullOrWhiteSpace(Item.Telefono) ? "No registrado" : Item.Telefono)</dd>
+
+            <dt>Correo</dt>
+            <dd>@(string.IsNullOrWhiteSpace(Item.Email) ? "No registrado" : Item.Email)</dd>
+
+            <dt>Direccion</dt>
+            <dd>@(string.IsNullOrWhiteSpace(Item.Direccion) ? "No registrada" : Item.Direccion)</dd>
+
+            <dt>Nacimiento</dt>
+            <dd>@(Item.FechaNacimiento?.ToString("dd/MM/yyyy") ?? "No registrado")</dd>
+
+            <dt>Estado</dt>
+            <dd>@(Item.Activo ? "Activo" : "Inactivo")</dd>
+        </dl>
+
+        <button class="boton boton-secundario" type="button" @onclick="Cerrar" style="margin-top:16px">
+            Cerrar ficha
+        </button>
+    }
+</div>
+
+@code {
+    [Parameter] public Cliente? Item { get; set; }
+
+    /// <summary>Pide a la pagina que deseleccione el cliente.</summary>
+    [Parameter] public EventCallback AlCerrar { get; set; }
+
+    private async Task Cerrar() => await AlCerrar.InvokeAsync();
+}

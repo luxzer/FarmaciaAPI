@@ -1,0 +1,46 @@
+@* Buscador de clientes.
+   A diferencia del de medicamentos, este filtra EN LA API: avisa a la pagina
+   y la pagina vuelve a pedir los datos con el texto como parametro. *@
+
+<div class="buscador">
+    <div class="buscador-fila">
+        <input type="search"
+               placeholder="Buscar por documento, nombres o apellidos"
+               value="@Texto"
+               @oninput="EscribioTexto"
+               @onkeydown="PulsoTecla"
+               aria-label="Buscar clientes" />
+        <button class="boton boton-primario" type="button" @onclick="Buscar">Buscar</button>
+        <button class="boton boton-secundario" type="button" @onclick="Limpiar">Limpiar</button>
+    </div>
+    <p class="descripcion" style="margin:10px 0 0">
+        La busqueda la resuelve la Web API con el parametro <code>?buscar=</code>.
+    </p>
+</div>
+
+@code {
+    private string? _borrador;
+
+    [Parameter] public string? Texto { get; set; }
+
+    /// <summary>Avisa a la pagina que debe pedir los clientes con este texto.</summary>
+    [Parameter] public EventCallback<string?> AlBuscar { get; set; }
+
+    protected override void OnParametersSet() => _borrador = Texto;
+
+    private void EscribioTexto(ChangeEventArgs e) => _borrador = e.Value?.ToString();
+
+    private async Task PulsoTecla(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+            await Buscar();
+    }
+
+    private async Task Buscar() => await AlBuscar.InvokeAsync(_borrador);
+
+    private async Task Limpiar()
+    {
+        _borrador = null;
+        await AlBuscar.InvokeAsync(null);
+    }
+}

@@ -1,0 +1,49 @@
+@* Pie de pagina personalizado del layout. *@
+@inject IConfiguration Config
+
+<footer class="pie">
+    <div class="contenedor">
+        <div class="pie-rejilla">
+
+            <div>
+                <h4>@Nombre</h4>
+                <p>@Lema</p>
+                <p>@Direccion</p>
+            </div>
+
+            <div>
+                <h4>Contacto</h4>
+                <ul>
+                    <li>@Telefono</li>
+                    <li>@Correo</li>
+                    <li>@Horario</li>
+                </ul>
+            </div>
+
+            <div>
+                <h4>Secciones</h4>
+                <ul>
+                    <li><a href="/">Inicio</a></li>
+                    <li><a href="medicamentos">Medicamentos</a></li>
+                    <li><a href="clientes">Clientes</a></li>
+                </ul>
+            </div>
+
+        </div>
+
+        <div class="pie-base">
+            <span>&copy; @DateTime.Now.Year @Nombre. Proyecto academico.</span>
+            <span>@Equipo</span>
+        </div>
+    </div>
+</footer>
+
+@code {
+    private string Nombre => Config["Sitio:Nombre"] ?? "Farmacia";
+    private string? Lema => Config["Sitio:Lema"];
+    private string? Direccion => Config["Sitio:Direccion"];
+    private string? Telefono => Config["Sitio:Telefono"];
+    private string? Correo => Config["Sitio:Correo"];
+    private string? Horario => Config["Sitio:Horario"];
+    private string? Equipo => Config["Sitio:Equipo"];
+}

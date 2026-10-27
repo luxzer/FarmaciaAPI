@@ -1,0 +1,33 @@
+@* Fila-tarjeta de un cliente. Avisa a la pagina cuando se pulsa, para que
+   muestre el detalle al lado. *@
+
+<button type="button"
+        class="tarjeta tarjeta-pulsable @(Seleccionado ? "tarjeta-activa" : "")"
+        @onclick="Pulsar">
+
+    <div style="display:flex; gap:14px; align-items:center">
+        <span class="avatar" aria-hidden="true">@Item.Iniciales</span>
+        <span style="min-width:0">
+            <h3 style="margin:0">@Item.NombreCompleto</h3>
+            <p class="laboratorio" style="margin:0">Documento @Item.Documento</p>
+        </span>
+    </div>
+
+    <div class="insignias">
+        <span class="insignia @(Item.Activo ? "insignia-verde" : "insignia-ambar")">
+            @(Item.Activo ? "Activo" : "Inactivo")
+        </span>
+        @if (!string.IsNullOrWhiteSpace(Item.Telefono))
+        {
+            <span class="insignia insignia-azul">@Item.Telefono</span>
+        }
+    </div>
+</button>
+
+@code {
+    [Parameter, EditorRequired] public Cliente Item { get; set; } = default!;
+    [Parameter] public bool Seleccionado { get; set; }
+    [Parameter] public EventCallback<Cliente> AlSeleccionar { get; set; }
+
+    private async Task Pulsar() => await AlSeleccionar.InvokeAsync(Item);
+}

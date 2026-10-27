@@ -1,0 +1,46 @@
+@* Muestra si la Web API responde. Consulta el servicio por su cuenta.
+   COMUNICACION ENTRE COMPONENTES: avisa al padre con EventCallback cuando
+   termina de consultar, para que la pagina pueda usar el mismo resultado. *@
+@inject IFarmaciaApiServicio Api
+
+<div class="tarjeta">
+    <h3>Estado del servicio</h3>
+
+    @if (_cargando)
+    {
+        <Cargando Texto="Consultando la API..." />
+    }
+    else if (_estado is null)
+    {
+        <p class="estado"><span class="punto punto-mal"></span> La Web API no responde</p>
+        <p class="descripcion">Comprueba que el proyecto FarmaciaAPI este corriendo.</p>
+    }
+    else
+    {
+        <p class="estado">
+            <span class="punto @(_estado.Conectada ? "punto-ok" : "punto-mal")"></span>
+            @(_estado.Conectada ? "API y base de datos conectadas" : "API activa, base de datos sin conexion")
+        </p>
+        <div class="datos" style="margin-top:12px">
+            <span>Motor<strong>@_estado.MotorBaseDatos</strong></span>
+            <span>Ciudad<strong>@_estado.Ciudad</strong></span>
+        </div>
+    }
+</div>
+
+@code {
+    private EstadoApi? _estado;
+    private bool _cargando = true;
+
+    /// <summary>Se dispara cuando termina la consulta, con el estado obtenido.</summary>
+    [Parameter] public EventCallback<EstadoApi?> AlConsultar { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _estado = await Api.ObtenerEstadoAsync();
+        _cargando = false;
+
+        // Avisamos al componente padre (comunicacion hijo -> padre).
+        await AlConsultar.InvokeAsync(_estado);
+    }
+}

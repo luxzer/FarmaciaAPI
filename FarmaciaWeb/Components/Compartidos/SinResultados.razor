@@ -1,0 +1,10 @@
+@* Estado vacio reutilizable, con imagen estatica. *@
+
+<div class="vacio">
+    <img src="img/sin-resultados.svg" alt="" />
+    <p>@Mensaje</p>
+</div>
+
+@code {
+    [Parameter] public string Mensaje { get; set; } = "No se encontraron resultados.";
+}

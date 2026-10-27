@@ -1,0 +1,110 @@
+@* ---------------------------------------------------------------------------
+   PAGINA DE CLIENTES
+   Componentes que usa: BuscadorClientes, TarjetaCliente (uno por resultado)
+   y DetalleCliente.
+   Comunicacion: TarjetaCliente avisa cual se pulso -> la pagina lo guarda ->
+   se lo pasa a DetalleCliente, que a su vez puede pedir que se cierre.
+   --------------------------------------------------------------------------- *@
+@page "/clientes"
+@inject IFarmaciaApiServicio Api
+@inject ILogger<Clientes> Logger
+
+<PageTitle>Clientes</PageTitle>
+
+<div class="contenedor seccion">
+
+    <div class="seccion-titulo">
+        <h1>Directorio de clientes</h1>
+        <p>Datos pedidos en vivo a <code>GET /api/clientes</code>.</p>
+    </div>
+
+    @* --- Componente 1: buscador (filtra en la API) ---------------------- *@
+    <BuscadorClientes Texto="@_texto" AlBuscar="Buscar" />
+
+    @if (_error)
+    {
+        <div class="aviso aviso-error">
+            No se pudo contactar la Web API. Comprueba que el proyecto
+            <strong>FarmaciaAPI</strong> este corriendo.
+        </div>
+    }
+
+    <div class="rejilla" style="grid-template-columns: 1fr; gap: 24px;">
+        <div class="rejilla rejilla-2" style="align-items:start">
+
+            <div>
+                @if (_cargando)
+                {
+                    <Cargando Texto="Consultando el directorio..." />
+                }
+                else if (_clientes.Count == 0)
+                {
+                    <SinResultados Mensaje="Ningun cliente coincide con la busqueda." />
+                }
+                else
+                {
+                    <p class="descripcion" style="margin:0 0 14px">
+                        @_clientes.Count @(_clientes.Count == 1 ? "cliente" : "clientes")
+                        @if (!string.IsNullOrWhiteSpace(_texto))
+                        {
+                            <span> para la busqueda <strong>@_texto</strong>.</span>
+                        }
+                    </p>
+
+                    @* --- Componente 2: una tarjeta por cliente ---------- *@
+                    <div class="rejilla" style="gap:12px">
+                        @foreach (var c in _clientes)
+                        {
+                            <TarjetaCliente Item="c"
+                                            Seleccionado="@(_seleccionado?.Id == c.Id)"
+                                            AlSeleccionar="SeleccionarCliente" />
+                        }
+                    </div>
+                }
+            </div>
+
+            @* --- Componente 3: ficha del seleccionado ------------------- *@
+            <DetalleCliente Item="_seleccionado" AlCerrar="CerrarFicha" />
+
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<Cliente> _clientes = new();
+    private Cliente? _seleccionado;
+    private string? _texto;
+    private bool _cargando = true;
+    private bool _error;
+
+    protected override async Task OnInitializedAsync() => await CargarAsync();
+
+    private async Task CargarAsync()
+    {
+        _cargando = true;
+
+        var resultado = await Api.ObtenerClientesAsync(_texto);
+
+        _clientes = resultado.ToList();
+        _error = _clientes.Count == 0 && string.IsNullOrWhiteSpace(_texto);
+        _cargando = false;
+
+        // Si el cliente abierto ya no esta en la lista, cerramos la ficha.
+        if (_seleccionado is not null && _clientes.All(c => c.Id != _seleccionado.Id))
+            _seleccionado = null;
+    }
+
+    // ----------------------------------------- Eventos que llegan del hijo
+
+    private async Task Buscar(string? texto)
+    {
+        _texto = texto;
+        Logger.LogInformation("Busqueda de clientes: {Texto}", texto ?? "(todas)");
+        await CargarAsync();
+    }
+
+    private void SeleccionarCliente(Cliente c)
+        => _seleccionado = _seleccionado?.Id == c.Id ? null : c;
+
+    private void CerrarFicha() => _seleccionado = null;
+}

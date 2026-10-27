@@ -1,0 +1,61 @@
+@* Tarjeta de un medicamento.
+   Recibe el medicamento por parametro (padre -> hijo) y avisa cuando el
+   usuario la pulsa (hijo -> padre). *@
+
+<button type="button"
+        class="tarjeta tarjeta-pulsable @(Seleccionado ? "tarjeta-activa" : "")"
+        @onclick="Pulsar">
+
+    <div class="tarjeta-cabeza">
+        <div>
+            <h3>@Item.Nombre</h3>
+            <p class="laboratorio">@Item.Laboratorio</p>
+        </div>
+        <span class="precio">@Item.Precio.ToString("C0", Cultura)</span>
+    </div>
+
+    @if (!string.IsNullOrWhiteSpace(Item.Descripcion))
+    {
+        <p class="descripcion">@Item.Descripcion</p>
+    }
+
+    <div class="datos">
+        <span>Existencias<strong>@Item.Stock unidades</strong></span>
+        <span>Vence<strong>@(Item.FechaVencimiento?.ToString("dd/MM/yyyy") ?? "Sin fecha")</strong></span>
+    </div>
+
+    <div class="insignias">
+        @if (Item.Stock <= UmbralStockBajo)
+        {
+            <span class="insignia insignia-roja">Stock bajo</span>
+        }
+        @if (Item.RequiereReceta)
+        {
+            <span class="insignia insignia-azul">Requiere receta</span>
+        }
+        @if (Item.PorVencer)
+        {
+            <span class="insignia insignia-ambar">Proximo a vencer</span>
+        }
+        @if (!Item.Activo)
+        {
+            <span class="insignia insignia-ambar">Inactivo</span>
+        }
+    </div>
+</button>
+
+@code {
+    private static readonly System.Globalization.CultureInfo Cultura = new("es-CO");
+
+    [Parameter, EditorRequired] public Medicamento Item { get; set; } = default!;
+
+    /// <summary>Umbral que la pagina obtuvo de la API para marcar el stock bajo.</summary>
+    [Parameter] public int UmbralStockBajo { get; set; } = 50;
+
+    [Parameter] public bool Seleccionado { get; set; }
+
+    /// <summary>Avisa a la pagina que esta tarjeta fue pulsada.</summary>
+    [Parameter] public EventCallback<Medicamento> AlSeleccionar { get; set; }
+
+    private async Task Pulsar() => await AlSeleccionar.InvokeAsync(Item);
+}

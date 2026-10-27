@@ -1,0 +1,149 @@
+@* ---------------------------------------------------------------------------
+   PAGINA DE MEDICAMENTOS
+   Componentes que usa: BuscadorMedicamentos, ResumenInventario y
+   TarjetaMedicamento (uno por resultado).
+   Comunicacion: el buscador avisa con EventCallback, la pagina recalcula y
+   reparte los datos a los demas componentes por parametros.
+   --------------------------------------------------------------------------- *@
+@page "/medicamentos"
+@inject IFarmaciaApiServicio Api
+@inject ILogger<Medicamentos> Logger
+
+<PageTitle>Medicamentos</PageTitle>
+
+<div class="contenedor seccion">
+
+    <div class="seccion-titulo">
+        <h1>Catalogo de medicamentos</h1>
+        <p>Datos pedidos en vivo a <code>GET /api/medicamentos</code>.</p>
+    </div>
+
+    @* --- Componente 1: buscador y filtros ------------------------------- *@
+    <BuscadorMedicamentos Texto="@_texto"
+                          Filtro="@_filtro"
+                          TextoCambio="CambioTexto"
+                          FiltroCambio="CambioFiltro" />
+
+    @if (_error)
+    {
+        <div class="aviso aviso-error">
+            No se pudo contactar la Web API. Comprueba que el proyecto
+            <strong>FarmaciaAPI</strong> este corriendo en @DireccionApi.
+        </div>
+    }
+
+    @* --- Componente 2: cifras del inventario ---------------------------- *@
+    <ResumenInventario Total="_todos.Count"
+                       StockBajo="@_todos.Count(m => m.Stock <= _umbral)"
+                       ConReceta="@_todos.Count(m => m.RequiereReceta)"
+                       Unidades="@_todos.Sum(m => m.Stock)" />
+
+    @if (_cargando)
+    {
+        <Cargando Texto="Consultando el catalogo..." />
+    }
+    else if (_visibles.Count == 0)
+    {
+        <SinResultados Mensaje="Ningun medicamento coincide con la busqueda." />
+    }
+    else
+    {
+        <p class="descripcion" style="margin:24px 0 14px">
+            Mostrando @_visibles.Count de @_todos.Count medicamentos.
+            @if (_seleccionado is not null)
+            {
+                <span> Seleccionado: <strong>@_seleccionado.Nombre</strong>.</span>
+            }
+        </p>
+
+        @* --- Componente 3: una tarjeta por medicamento ------------------ *@
+        <div class="rejilla rejilla-3">
+            @foreach (var m in _visibles)
+            {
+                <TarjetaMedicamento Item="m"
+                                    UmbralStockBajo="_umbral"
+                                    Seleccionado="@(_seleccionado?.Id == m.Id)"
+                                    AlSeleccionar="SeleccionarMedicamento" />
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<Medicamento> _todos = new();
+    private List<Medicamento> _visibles = new();
+    private Medicamento? _seleccionado;
+
+    private string? _texto;
+    private BuscadorMedicamentos.FiltroCatalogo _filtro = BuscadorMedicamentos.FiltroCatalogo.Todos;
+
+    private int _umbral = 50;
+    private bool _cargando = true;
+    private bool _error;
+
+    [Inject] private IConfiguration Config { get; set; } = default!;
+    private string? DireccionApi => Config["FarmaciaApi:BaseUrl"];
+
+    protected override async Task OnInitializedAsync()
+    {
+        // El umbral de stock bajo lo decide la API, no esta escrito aqui.
+        var stockBajo = await Api.ObtenerStockBajoAsync();
+        if (stockBajo is not null)
+            _umbral = stockBajo.Umbral;
+
+        await CargarAsync();
+    }
+
+    private async Task CargarAsync()
+    {
+        _cargando = true;
+
+        // El texto se manda a la API como parametro ?nombre=
+        var resultado = await Api.ObtenerMedicamentosAsync(_texto);
+
+        _todos = resultado.ToList();
+        _error = _todos.Count == 0 && string.IsNullOrWhiteSpace(_texto);
+        _cargando = false;
+
+        AplicarFiltro();
+    }
+
+    /// <summary>Los filtros se resuelven en el navegador, sin volver a la API.</summary>
+    private void AplicarFiltro()
+    {
+        _visibles = _filtro switch
+        {
+            BuscadorMedicamentos.FiltroCatalogo.StockBajo => _todos.Where(m => m.Stock <= _umbral).ToList(),
+            BuscadorMedicamentos.FiltroCatalogo.ConReceta => _todos.Where(m => m.RequiereReceta).ToList(),
+            BuscadorMedicamentos.FiltroCatalogo.PorVencer => _todos.Where(m => m.PorVencer).ToList(),
+            _ => _todos.ToList()
+        };
+
+        // Si el seleccionado ya no esta a la vista, lo soltamos.
+        if (_seleccionado is not null && _visibles.All(m => m.Id != _seleccionado.Id))
+            _seleccionado = null;
+    }
+
+    // ----------------------------------------- Eventos que llegan del hijo
+
+    private async Task CambioTexto(string? texto)
+    {
+        _texto = texto;
+        await CargarAsync();           // volvemos a preguntar a la API
+    }
+
+    private void CambioFiltro(BuscadorMedicamentos.FiltroCatalogo filtro)
+    {
+        _filtro = filtro;
+        AplicarFiltro();               // esto se resuelve sin llamar a la API
+    }
+
+    private void SeleccionarMedicamento(Medicamento m)
+    {
+        // Pulsar la tarjeta ya seleccionada la deselecciona.
+        _seleccionado = _seleccionado?.Id == m.Id ? null : m;
+
+        if (_seleccionado is not null)
+            Logger.LogInformation("Medicamento seleccionado: {Nombre} (Id={Id})", m.Nombre, m.Id);
+    }
+}

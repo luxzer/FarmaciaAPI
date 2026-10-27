@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 420 320" width="420" height="320" role="img" aria-label="Ilustracion de mostrador de farmacia">
+  <defs>
+    <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#e8f2ee"/>
+      <stop offset="1" stop-color="#cfe4dc"/>
+    </linearGradient>
+  </defs>
+  <rect width="420" height="320" rx="18" fill="url(#g1)"/>
+
+  <!-- Estanteria -->
+  <rect x="42" y="56" width="150" height="196" rx="8" fill="#ffffff"/>
+  <rect x="42" y="112" width="150" height="4" fill="#dce8e3"/>
+  <rect x="42" y="176" width="150" height="4" fill="#dce8e3"/>
+
+  <!-- Cajas de medicamento -->
+  <rect x="56" y="74" width="26" height="34" rx="3" fill="#0d6b58"/>
+  <rect x="88" y="80" width="26" height="28" rx="3" fill="#5e8c7f"/>
+  <rect x="120" y="70" width="26" height="38" rx="3" fill="#1c7293"/>
+  <rect x="152" y="84" width="26" height="24" rx="3" fill="#a8641b"/>
+
+  <rect x="56" y="140" width="26" height="32" rx="3" fill="#1c7293"/>
+  <rect x="88" y="134" width="26" height="38" rx="3" fill="#0d6b58"/>
+  <rect x="120" y="146" width="26" height="26" rx="3" fill="#a8641b"/>
+  <rect x="152" y="138" width="26" height="34" rx="3" fill="#5e8c7f"/>
+
+  <rect x="56" y="206" width="38" height="28" rx="3" fill="#5e8c7f"/>
+  <rect x="100" y="200" width="30" height="34" rx="3" fill="#0d6b58"/>
+  <rect x="136" y="210" width="42" height="24" rx="3" fill="#1c7293"/>
+
+  <!-- Mortero -->
+  <path d="M250 236 h92 l-12 34 a10 10 0 0 1 -9 6 h-50 a10 10 0 0 1 -9 -6 z" fill="#0d6b58"/>
+  <rect x="246" y="226" width="100" height="12" rx="6" fill="#0a5546"/>
+  <rect x="296" y="178" width="10" height="52" rx="5" fill="#0a5546" transform="rotate(18 301 204)"/>
+
+  <!-- Cruz grande -->
+  <g opacity="0.9">
+    <rect x="276" y="56" width="26" height="86" rx="7" fill="#0d6b58"/>
+    <rect x="246" y="86" width="86" height="26" rx="7" fill="#0d6b58"/>
+  </g>
+</svg>

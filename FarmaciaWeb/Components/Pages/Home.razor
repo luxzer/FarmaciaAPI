@@ -1,0 +1,92 @@
+﻿@* ---------------------------------------------------------------------------
+   LANDING PAGE
+   Componentes que usa: EstadoConexion y TarjetaCaracteristica (x3).
+   Comunicacion: EstadoConexion avisa con AlConsultar y esta pagina usa el
+   dato para mostrar el umbral de stock que tiene configurado la API.
+   --------------------------------------------------------------------------- *@
+@page "/"
+@inject IConfiguration Config
+
+<PageTitle>@Nombre</PageTitle>
+
+<section class="portada">
+    <div class="contenedor portada-rejilla">
+        <div>
+            <span class="etiqueta">@Ciudad</span>
+            <h1>@Lema</h1>
+            <p class="entradilla">
+                Consulta en linea el inventario de @Nombre y el directorio de clientes.
+                Toda la informacion que ves se pide en vivo a nuestra Web API.
+            </p>
+            <div class="botonera">
+                <a class="boton boton-primario" href="medicamentos">Ver medicamentos</a>
+                <a class="boton boton-secundario" href="clientes">Ver clientes</a>
+            </div>
+        </div>
+        <div>
+            <img src="img/hero.svg" alt="Ilustracion del mostrador de la farmacia" />
+        </div>
+    </div>
+</section>
+
+<section class="seccion">
+    <div class="contenedor">
+        <div class="rejilla rejilla-3">
+
+            @* Componente 1: consulta la API y nos avisa del resultado. *@
+            <EstadoConexion AlConsultar="RecibirEstado" />
+
+            @* Componente 2: tarjetas informativas, todo por parametros. *@
+            <TarjetaCaracteristica Etiqueta="Inventario"
+                                   Titulo="Catalogo en vivo"
+                                   Descripcion="@DescripcionCatalogo"
+                                   Enlace="medicamentos"
+                                   TextoEnlace="Abrir catalogo" />
+
+            <TarjetaCaracteristica Etiqueta="Clientes"
+                                   Titulo="Directorio de clientes"
+                                   Descripcion="Busca por documento, nombres o apellidos. El filtro lo resuelve la propia Web API."
+                                   Enlace="clientes"
+                                   TextoEnlace="Abrir directorio" />
+        </div>
+    </div>
+</section>
+
+<section class="seccion">
+    <div class="contenedor">
+        <div class="seccion-titulo">
+            <h2>Como funciona por dentro</h2>
+            <p>Lo que mostramos en la presentacion.</p>
+        </div>
+
+        <div class="rejilla rejilla-3">
+            <TarjetaCaracteristica Etiqueta="Paso 1"
+                                   Titulo="La pagina pide los datos"
+                                   Descripcion="Las paginas nunca usan HttpClient directamente: dependen de la interfaz IFarmaciaApiServicio." />
+
+            <TarjetaCaracteristica Etiqueta="Paso 2"
+                                   Titulo="El servicio llama a la API"
+                                   Descripcion="FarmaciaApiServicio recibe HttpClient, ILogger e IConfiguration por inyeccion de dependencias y hace la peticion HTTP." />
+
+            <TarjetaCaracteristica Etiqueta="Paso 3"
+                                   Titulo="Los componentes presentan"
+                                   Descripcion="La pagina reparte el resultado a sus componentes por parametros, y ellos le avisan de vuelta con EventCallback." />
+        </div>
+    </div>
+</section>
+
+@code {
+    private EstadoApi? _estado;
+
+    private string Nombre => Config["Sitio:Nombre"] ?? "Farmacia";
+    private string Lema => Config["Sitio:Lema"] ?? "Tu salud, cerca de casa";
+    private string Ciudad => Config["Sitio:Direccion"] ?? "";
+
+    private string DescripcionCatalogo =>
+        _estado is { Conectada: true }
+            ? $"Precios y existencias actualizados. La API marca como stock bajo todo lo que baje de {_estado.StockMinimoConfigurado} unidades."
+            : "Precios, existencias y alertas de stock bajo, consultados directamente a la Web API.";
+
+    /// <summary>Recibe el estado que consulto el componente hijo EstadoConexion.</summary>
+    private void RecibirEstado(EstadoApi? estado) => _estado = estado;
+}

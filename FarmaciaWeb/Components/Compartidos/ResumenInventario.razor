@@ -1,0 +1,28 @@
+@* Cifras del catalogo. Todo llega calculado desde la pagina (padre -> hijo):
+   este componente no consulta la API, solo presenta. *@
+
+<div class="cifras">
+    <div class="cifra">
+        <div class="valor">@Total</div>
+        <div class="rotulo">medicamentos</div>
+    </div>
+    <div class="cifra">
+        <div class="valor">@StockBajo</div>
+        <div class="rotulo">con stock bajo</div>
+    </div>
+    <div class="cifra">
+        <div class="valor">@ConReceta</div>
+        <div class="rotulo">requieren receta</div>
+    </div>
+    <div class="cifra">
+        <div class="valor">@Unidades.ToString("N0")</div>
+        <div class="rotulo">unidades en total</div>
+    </div>
+</div>
+
+@code {
+    [Parameter] public int Total { get; set; }
+    [Parameter] public int StockBajo { get; set; }
+    [Parameter] public int ConReceta { get; set; }
+    [Parameter] public int Unidades { get; set; }
+}
