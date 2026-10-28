@@ -1,5 +1,3 @@
-@* Encabezado personalizado del layout. Reemplaza al NavMenu de la plantilla.
-   Los datos de la farmacia salen de appsettings.json via IConfiguration. *@
 @inject IConfiguration Config
 
 <header class="encabezado">
@@ -28,7 +26,6 @@
 </header>
 
 @code {
-    // USO DE IConfiguration: nada de esto esta escrito en el codigo.
     private string Nombre => Config["Sitio:Nombre"] ?? "Farmacia";
     private string? Lema => Config["Sitio:Lema"];
     private string? Telefono => Config["Sitio:Telefono"];

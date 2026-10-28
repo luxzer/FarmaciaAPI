@@ -1,10 +1,3 @@
-@* ---------------------------------------------------------------------------
-   PAGINA DE CLIENTES
-   Componentes que usa: BuscadorClientes, TarjetaCliente (uno por resultado)
-   y DetalleCliente.
-   Comunicacion: TarjetaCliente avisa cual se pulso -> la pagina lo guarda ->
-   se lo pasa a DetalleCliente, que a su vez puede pedir que se cierre.
-   --------------------------------------------------------------------------- *@
 @page "/clientes"
 @inject IFarmaciaApiServicio Api
 @inject ILogger<Clientes> Logger
@@ -17,8 +10,6 @@
         <h1>Directorio de clientes</h1>
         <p>Datos pedidos en vivo a <code>GET /api/clientes</code>.</p>
     </div>
-
-    @* --- Componente 1: buscador (filtra en la API) ---------------------- *@
     <BuscadorClientes Texto="@_texto" AlBuscar="Buscar" />
 
     @if (_error)
@@ -50,8 +41,6 @@
                             <span> para la busqueda <strong>@_texto</strong>.</span>
                         }
                     </p>
-
-                    @* --- Componente 2: una tarjeta por cliente ---------- *@
                     <div class="rejilla" style="gap:12px">
                         @foreach (var c in _clientes)
                         {
@@ -62,8 +51,6 @@
                     </div>
                 }
             </div>
-
-            @* --- Componente 3: ficha del seleccionado ------------------- *@
             <DetalleCliente Item="_seleccionado" AlCerrar="CerrarFicha" />
 
         </div>
@@ -89,12 +76,10 @@
         _error = _clientes.Count == 0 && string.IsNullOrWhiteSpace(_texto);
         _cargando = false;
 
-        // Si el cliente abierto ya no esta en la lista, cerramos la ficha.
+        // si el cliente abierto ya no sale en la lista, se cierra la ficha
         if (_seleccionado is not null && _clientes.All(c => c.Id != _seleccionado.Id))
             _seleccionado = null;
     }
-
-    // ----------------------------------------- Eventos que llegan del hijo
 
     private async Task Buscar(string? texto)
     {

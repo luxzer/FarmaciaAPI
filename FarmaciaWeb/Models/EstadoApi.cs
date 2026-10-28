@@ -1,6 +1,5 @@
 namespace FarmaciaWeb.Models;
 
-/// <summary>Respuesta del endpoint /api/diagnostico/salud.</summary>
 public class EstadoApi
 {
     public string? Api { get; set; }

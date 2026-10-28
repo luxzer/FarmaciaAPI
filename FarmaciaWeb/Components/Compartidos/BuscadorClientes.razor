@@ -1,7 +1,3 @@
-@* Buscador de clientes.
-   A diferencia del de medicamentos, este filtra EN LA API: avisa a la pagina
-   y la pagina vuelve a pedir los datos con el texto como parametro. *@
-
 <div class="buscador">
     <div class="buscador-fila">
         <input type="search"
@@ -23,7 +19,6 @@
 
     [Parameter] public string? Texto { get; set; }
 
-    /// <summary>Avisa a la pagina que debe pedir los clientes con este texto.</summary>
     [Parameter] public EventCallback<string?> AlBuscar { get; set; }
 
     protected override void OnParametersSet() => _borrador = Texto;

@@ -1,7 +1,3 @@
-@* Tarjeta de un medicamento.
-   Recibe el medicamento por parametro (padre -> hijo) y avisa cuando el
-   usuario la pulsa (hijo -> padre). *@
-
 <button type="button"
         class="tarjeta tarjeta-pulsable @(Seleccionado ? "tarjeta-activa" : "")"
         @onclick="Pulsar">
@@ -45,16 +41,14 @@
 </button>
 
 @code {
-    private static readonly System.Globalization.CultureInfo Cultura = new("es-CO");
+    private static readonly System.Globalization.CultureInfo Cultura = new("es-DO");
 
     [Parameter, EditorRequired] public Medicamento Item { get; set; } = default!;
 
-    /// <summary>Umbral que la pagina obtuvo de la API para marcar el stock bajo.</summary>
     [Parameter] public int UmbralStockBajo { get; set; } = 50;
 
     [Parameter] public bool Seleccionado { get; set; }
 
-    /// <summary>Avisa a la pagina que esta tarjeta fue pulsada.</summary>
     [Parameter] public EventCallback<Medicamento> AlSeleccionar { get; set; }
 
     private async Task Pulsar() => await AlSeleccionar.InvokeAsync(Item);

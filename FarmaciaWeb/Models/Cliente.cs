@@ -1,6 +1,5 @@
 namespace FarmaciaWeb.Models;
 
-/// <summary>Cliente tal como lo devuelve el endpoint /api/clientes.</summary>
 public class Cliente
 {
     public int Id { get; set; }
@@ -14,7 +13,6 @@ public class Cliente
     public bool Activo { get; set; }
     public string NombreCompleto { get; set; } = string.Empty;
 
-    /// <summary>Iniciales para el avatar de la tarjeta.</summary>
     public string Iniciales =>
         string.Concat(
             Nombres.FirstOrDefault(char.IsLetter),

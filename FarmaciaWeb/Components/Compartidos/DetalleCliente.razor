@@ -1,7 +1,3 @@
-@* Ficha del cliente seleccionado.
-   Es el otro extremo de la comunicacion: la pagina recibe el evento de
-   TarjetaCliente y pasa el resultado a este componente (padre -> hijo). *@
-
 <div class="tarjeta detalle">
     @if (Item is null)
     {
@@ -44,7 +40,6 @@
 @code {
     [Parameter] public Cliente? Item { get; set; }
 
-    /// <summary>Pide a la pagina que deseleccione el cliente.</summary>
     [Parameter] public EventCallback AlCerrar { get; set; }
 
     private async Task Cerrar() => await AlCerrar.InvokeAsync();

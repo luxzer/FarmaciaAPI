@@ -4,24 +4,13 @@ using FarmaciaWeb.Models;
 
 namespace FarmaciaWeb.Servicios;
 
-/// <summary>
-/// Implementacion de <see cref="IFarmaciaApiServicio"/> sobre HttpClient.
-///
-/// Esta clase es la que exige el enunciado: toda la comunicacion con la Web API
-/// pasa por aqui, y recibe por INYECCION DE DEPENDENCIAS las tres cosas que
-/// necesita, sin construir ninguna con "new":
-///   - HttpClient      -> lo entrega la fabrica registrada en Program.cs
-///   - ILogger         -> registra en consola cada llamada y cada fallo
-///   - IConfiguration  -> lee parametros de appsettings.json
-/// </summary>
 public class FarmaciaApiServicio : IFarmaciaApiServicio
 {
-    private readonly HttpClient _http;                           // DI
-    private readonly ILogger<FarmaciaApiServicio> _logger;       // DI: ILogger
-    private readonly bool _registrarDetalle;                     // viene de IConfiguration
+    private readonly HttpClient _http;
+    private readonly ILogger<FarmaciaApiServicio> _logger;
+    private readonly bool _registrarDetalle;
 
-    // La API devuelve el JSON en camelCase ("fechaVencimiento") y nuestras
-    // propiedades estan en PascalCase, por eso ignoramos may/minusculas.
+    // la API manda el JSON en camelCase
     private static readonly JsonSerializerOptions OpcionesJson = new()
     {
         PropertyNameCaseInsensitive = true
@@ -29,23 +18,18 @@ public class FarmaciaApiServicio : IFarmaciaApiServicio
 
     public FarmaciaApiServicio(
         HttpClient http,
-        IConfiguration configuracion,                            // DI: IConfiguration
-        ILogger<FarmaciaApiServicio> logger)                     // DI: ILogger
+        IConfiguration configuracion,
+        ILogger<FarmaciaApiServicio> logger)
     {
         _http = http;
         _logger = logger;
 
-        // --- USO DE IConfiguration -------------------------------------------
-        // La direccion base de la API se configura en Program.cs. Aqui leemos
-        // un parametro de comportamiento, para poder activar o desactivar el
-        // detalle de los logs sin recompilar.
+        // para apagar los logs de cada peticion sin recompilar
         _registrarDetalle = configuracion.GetValue<bool>("FarmaciaApi:RegistrarDetalle", true);
     }
 
     public async Task<IReadOnlyList<Medicamento>> ObtenerMedicamentosAsync(string? nombre = null, CancellationToken ct = default)
     {
-        // Uri.EscapeDataString evita que un texto con espacios o acentos rompa
-        // la direccion.
         var ruta = string.IsNullOrWhiteSpace(nombre)
             ? "api/medicamentos"
             : $"api/medicamentos?nombre={Uri.EscapeDataString(nombre.Trim())}";
@@ -68,12 +52,6 @@ public class FarmaciaApiServicio : IFarmaciaApiServicio
     public async Task<EstadoApi?> ObtenerEstadoAsync(CancellationToken ct = default)
         => await PedirAsync<EstadoApi>("api/diagnostico/salud", "estado", ct);
 
-    // ------------------------------------------------------------- Auxiliares
-
-    /// <summary>
-    /// Hace la peticion GET y convierte el JSON al tipo pedido. Centralizar
-    /// aqui el manejo de errores evita repetir el try/catch en cada metodo.
-    /// </summary>
     private async Task<T?> PedirAsync<T>(string ruta, string descripcion, CancellationToken ct)
     {
         try
@@ -83,8 +61,7 @@ public class FarmaciaApiServicio : IFarmaciaApiServicio
 
             var respuesta = await _http.GetAsync(ruta, ct);
 
-            // El endpoint de salud responde 503 cuando MySQL no contesta, pero
-            // el cuerpo sigue trayendo informacion util, asi que lo leemos igual.
+            // /salud devuelve 503 si MySQL no responde, pero el body igual nos sirve
             if (!respuesta.IsSuccessStatusCode && respuesta.StatusCode != System.Net.HttpStatusCode.ServiceUnavailable)
             {
                 _logger.LogWarning("La API respondio {Codigo} al pedir {Descripcion}.",
@@ -96,7 +73,7 @@ public class FarmaciaApiServicio : IFarmaciaApiServicio
         }
         catch (OperationCanceledException)
         {
-            // El usuario cambio de pagina o escribio otra busqueda: no es un error.
+            // se cancelo (cambio de pagina o nueva busqueda), no es un error
             throw;
         }
         catch (HttpRequestException ex)
@@ -112,7 +89,6 @@ public class FarmaciaApiServicio : IFarmaciaApiServicio
         }
     }
 
-    /// <summary>Igual que PedirAsync, pero nunca devuelve null: una lista vacia basta.</summary>
     private async Task<IReadOnlyList<T>> PedirListaAsync<T>(string ruta, string descripcion, CancellationToken ct)
     {
         var lista = await PedirAsync<List<T>>(ruta, descripcion, ct);
