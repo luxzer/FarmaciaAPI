@@ -1,11 +1,8 @@
-@* Indicador de carga reutilizable. Parametro de entrada: el texto a mostrar. *@
-
 <div class="cargando">
     <span class="girador" aria-hidden="true"></span>
     <span>@Texto</span>
 </div>
 
 @code {
-    /// <summary>Mensaje que acompana al girador.</summary>
     [Parameter] public string Texto { get; set; } = "Cargando...";
 }

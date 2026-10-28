@@ -1,10 +1,4 @@
-﻿@* ---------------------------------------------------------------------------
-   LANDING PAGE
-   Componentes que usa: EstadoConexion y TarjetaCaracteristica (x3).
-   Comunicacion: EstadoConexion avisa con AlConsultar y esta pagina usa el
-   dato para mostrar el umbral de stock que tiene configurado la API.
-   --------------------------------------------------------------------------- *@
-@page "/"
+﻿@page "/"
 @inject IConfiguration Config
 
 <PageTitle>@Nombre</PageTitle>
@@ -32,11 +26,7 @@
 <section class="seccion">
     <div class="contenedor">
         <div class="rejilla rejilla-3">
-
-            @* Componente 1: consulta la API y nos avisa del resultado. *@
             <EstadoConexion AlConsultar="RecibirEstado" />
-
-            @* Componente 2: tarjetas informativas, todo por parametros. *@
             <TarjetaCaracteristica Etiqueta="Inventario"
                                    Titulo="Catalogo en vivo"
                                    Descripcion="@DescripcionCatalogo"
@@ -87,6 +77,5 @@
             ? $"Precios y existencias actualizados. La API marca como stock bajo todo lo que baje de {_estado.StockMinimoConfigurado} unidades."
             : "Precios, existencias y alertas de stock bajo, consultados directamente a la Web API.";
 
-    /// <summary>Recibe el estado que consulto el componente hijo EstadoConexion.</summary>
     private void RecibirEstado(EstadoApi? estado) => _estado = estado;
 }

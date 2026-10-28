@@ -1,6 +1,5 @@
 namespace FarmaciaWeb.Models;
 
-/// <summary>Medicamento tal como lo devuelve el endpoint /api/medicamentos.</summary>
 public class Medicamento
 {
     public int Id { get; set; }
@@ -13,7 +12,7 @@ public class Medicamento
     public DateOnly? FechaVencimiento { get; set; }
     public bool Activo { get; set; }
 
-    /// <summary>Faltan 90 dias o menos para que venza.</summary>
+    // vence en 90 dias o menos
     public bool PorVencer =>
         FechaVencimiento.HasValue &&
         FechaVencimiento.Value <= DateOnly.FromDateTime(DateTime.Today.AddDays(90));

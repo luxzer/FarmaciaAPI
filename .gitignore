@@ -11,3 +11,6 @@ obj/
 # Secretos locales: NO subir contrasenas al repositorio
 appsettings.Local.json
 *.env
+
+# Archivos publicados
+/public/

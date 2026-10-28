@@ -1,7 +1,3 @@
-@* Buscador y filtros del catalogo.
-   COMUNICACION HIJO -> PADRE: no guarda ni filtra nada por su cuenta; avisa a
-   la pagina con EventCallback y es la pagina quien decide que hacer. *@
-
 <div class="buscador">
     <div class="buscador-fila">
         <input type="search"
@@ -25,14 +21,11 @@
 </div>
 
 @code {
-    /// <summary>Opciones de filtrado que ofrece el catalogo.</summary>
     public enum FiltroCatalogo { Todos, StockBajo, ConReceta, PorVencer }
 
-    // Parametros de entrada: la pagina manda el estado actual (padre -> hijo).
     [Parameter] public string? Texto { get; set; }
     [Parameter] public FiltroCatalogo Filtro { get; set; } = FiltroCatalogo.Todos;
 
-    // Eventos de salida: avisamos a la pagina (hijo -> padre).
     [Parameter] public EventCallback<string?> TextoCambio { get; set; }
     [Parameter] public EventCallback<FiltroCatalogo> FiltroCambio { get; set; }
 

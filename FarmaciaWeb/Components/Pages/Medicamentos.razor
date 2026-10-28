@@ -1,10 +1,3 @@
-@* ---------------------------------------------------------------------------
-   PAGINA DE MEDICAMENTOS
-   Componentes que usa: BuscadorMedicamentos, ResumenInventario y
-   TarjetaMedicamento (uno por resultado).
-   Comunicacion: el buscador avisa con EventCallback, la pagina recalcula y
-   reparte los datos a los demas componentes por parametros.
-   --------------------------------------------------------------------------- *@
 @page "/medicamentos"
 @inject IFarmaciaApiServicio Api
 @inject ILogger<Medicamentos> Logger
@@ -17,8 +10,6 @@
         <h1>Catalogo de medicamentos</h1>
         <p>Datos pedidos en vivo a <code>GET /api/medicamentos</code>.</p>
     </div>
-
-    @* --- Componente 1: buscador y filtros ------------------------------- *@
     <BuscadorMedicamentos Texto="@_texto"
                           Filtro="@_filtro"
                           TextoCambio="CambioTexto"
@@ -31,8 +22,6 @@
             <strong>FarmaciaAPI</strong> este corriendo en @DireccionApi.
         </div>
     }
-
-    @* --- Componente 2: cifras del inventario ---------------------------- *@
     <ResumenInventario Total="_todos.Count"
                        StockBajo="@_todos.Count(m => m.Stock <= _umbral)"
                        ConReceta="@_todos.Count(m => m.RequiereReceta)"
@@ -55,8 +44,6 @@
                 <span> Seleccionado: <strong>@_seleccionado.Nombre</strong>.</span>
             }
         </p>
-
-        @* --- Componente 3: una tarjeta por medicamento ------------------ *@
         <div class="rejilla rejilla-3">
             @foreach (var m in _visibles)
             {
@@ -86,7 +73,7 @@
 
     protected override async Task OnInitializedAsync()
     {
-        // El umbral de stock bajo lo decide la API, no esta escrito aqui.
+        // el umbral lo manda la API
         var stockBajo = await Api.ObtenerStockBajoAsync();
         if (stockBajo is not null)
             _umbral = stockBajo.Umbral;
@@ -98,7 +85,6 @@
     {
         _cargando = true;
 
-        // El texto se manda a la API como parametro ?nombre=
         var resultado = await Api.ObtenerMedicamentosAsync(_texto);
 
         _todos = resultado.ToList();
@@ -108,7 +94,7 @@
         AplicarFiltro();
     }
 
-    /// <summary>Los filtros se resuelven en el navegador, sin volver a la API.</summary>
+    // los filtros se aplican en memoria, no hace falta volver a pedir a la API
     private void AplicarFiltro()
     {
         _visibles = _filtro switch
@@ -119,28 +105,26 @@
             _ => _todos.ToList()
         };
 
-        // Si el seleccionado ya no esta a la vista, lo soltamos.
+        // si el seleccionado quedo fuera del filtro, se deselecciona
         if (_seleccionado is not null && _visibles.All(m => m.Id != _seleccionado.Id))
             _seleccionado = null;
     }
 
-    // ----------------------------------------- Eventos que llegan del hijo
-
     private async Task CambioTexto(string? texto)
     {
         _texto = texto;
-        await CargarAsync();           // volvemos a preguntar a la API
+        await CargarAsync();
     }
 
     private void CambioFiltro(BuscadorMedicamentos.FiltroCatalogo filtro)
     {
         _filtro = filtro;
-        AplicarFiltro();               // esto se resuelve sin llamar a la API
+        AplicarFiltro();
     }
 
     private void SeleccionarMedicamento(Medicamento m)
     {
-        // Pulsar la tarjeta ya seleccionada la deselecciona.
+        // click sobre la que ya estaba seleccionada = deseleccionar
         _seleccionado = _seleccionado?.Id == m.Id ? null : m;
 
         if (_seleccionado is not null)
