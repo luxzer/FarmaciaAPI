@@ -12,5 +12,7 @@ obj/
 appsettings.Local.json
 *.env
 
-# Archivos publicados
+# Guias de estudio locales (public/index.html, public/guia-react.html).
+# La barra inicial limita la regla a la carpeta public de la raiz: la de
+# FarmaciaReact/public (favicon) si se sube.
 /public/
