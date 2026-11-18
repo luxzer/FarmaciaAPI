@@ -49,7 +49,7 @@ public class DiagnosticoController : ControllerBase
         {
             api = "FarmaciaAPI",
             farmacia = _configuracion.GetValue<string>("Farmacia:Nombre"),
-            nit = _configuracion.GetValue<string>("Farmacia:Nit"),
+            rnc = _configuracion.GetValue<string>("Farmacia:Rnc"),
             ciudad = _configuracion.GetValue<string>("Farmacia:Ciudad"),
             stockMinimoConfigurado = _configuracion.GetValue<int>("Farmacia:StockMinimo"),
             auditoriaHabilitada = _configuracion.GetValue<bool>("Farmacia:AuditoriaHabilitada"),
